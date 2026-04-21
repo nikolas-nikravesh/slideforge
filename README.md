@@ -1,4 +1,4 @@
-# Financial Presentation Framework
+# Slideforge
 
 React + Spectacle framework for code-first slide decks with a library-style presentation builder API.
 
