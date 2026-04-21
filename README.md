@@ -2,6 +2,45 @@
 
 React + Spectacle framework for code-first slide decks with a library-style presentation builder API.
 
+## What Slideforge Is
+
+Slideforge is a presentation authoring framework for teams that want repeatable, themeable, code-defined decks.
+
+It is built for:
+- Founders, operators, and finance teams producing recurring narrative decks
+- Product and engineering teams that want presentation quality to be versioned and reviewable
+- Developers who want declarative slide composition instead of hand-tuned one-off JSX per deck
+
+Core idea:
+- Treat presentations like software artifacts: structured definitions, reusable components, shared themes, and consistent rendering behavior.
+
+## Why This Is More Than Raw Spectacle
+
+Slideforge uses Spectacle as the rendering/runtime foundation, but adds a higher-level authoring system on top:
+
+- Declarative DSL for decks/slides/regions (`Presentation.create()`, `slide(...)`, `blocks`)
+- Structured layout model (one-box, two-box, grid) with consistent region behavior
+- Reusable content primitives (bullets, charts, data blocks, code/media blocks) instead of ad hoc JSX per slide
+- Theme tokens + presets as first-class API (`themes`, bullet/progress/font presets)
+- Extension points (`custom` blocks and typed custom renderers) without losing shared layout/theme conventions
+
+In practice, Spectacle is the engine; Slideforge is the framework layer that standardizes authoring, styling, and composition across presentations.
+
+## What You Get
+
+- A fluent builder API for deck assembly (`Presentation.create()`)
+- Declarative slide specs (`slide({...})`) with composable regions
+- Structured layouts (`oneBox`, `twoVertical`, `twoHorizontal`, `grid`)
+- First-class content blocks (text, bullets, charts, code, data, media)
+- Theme registry with tokenized styling and reusable presets
+- Escape hatches for custom React where needed, without abandoning framework conventions
+
+## Repository Layout
+
+- `src/` framework internals and public surface exports
+- `presentations/` presentation implementations that consume the public API
+- `presentations/theme-showcase/` interactive showcase of capabilities and customization
+
 ## Quick Start
 
 ```bash
