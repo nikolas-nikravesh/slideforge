@@ -1,0 +1,1 @@
+export { StructuredSlide } from './StructuredSlide';

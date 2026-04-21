@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+AGENTS.md
+CLAUDE.md
+
+.vite/
+
+# Ignore all presentations except the showcase deck
+presentations/*
+!presentations/theme-showcase/
+!presentations/theme-showcase/**
