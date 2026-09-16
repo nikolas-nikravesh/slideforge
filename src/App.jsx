@@ -1,4 +1,3 @@
-import React from 'react';
 import { ThemeShowcase } from '../presentations/theme-showcase/ThemeShowcase';
 
 function App() {

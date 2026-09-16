@@ -1,14 +1,8 @@
 import { Fragment } from 'react';
 import { Box, Heading, Text } from 'spectacle';
 import { SlideFrame } from '../slides/SlideFrame';
-import {
-  OneBoxLayout,
-  TwoVerticalBoxesLayout,
-  TwoHorizontalBoxesLayout,
-  GridLayout,
-  PanelBox,
-} from '../layouts';
-import { BulletList, ChartBlock, CodeBlock, DataBlock, MediaBlock } from '../content';
+import { OneBoxLayout, TwoVerticalBoxesLayout, TwoHorizontalBoxesLayout, GridLayout, PanelBox } from '../layouts';
+import { BulletList, ChartBlock, CodeBlock, DataBlock, DividerBlock, MediaBlock } from '../content';
 import { InlineRichText } from '../content/InlineRichText';
 import { ProgressiveList, FloatingBox, PulsingText, SlideIn } from '../effects';
 import { usePresentationTheme } from '../themes/PresentationThemeContext';
@@ -100,10 +94,25 @@ function renderBlock(block, key, theme, customBlockRenderers = {}) {
       rendered = <ProgressiveList items={block.items ?? []} fontSize={block.fontSize} gap={block.gap} />;
       break;
     case 'code':
-      rendered = <CodeBlock code={block.code ?? ''} language={block.language ?? 'javascript'} fontSize={block.fontSize} />;
+      rendered = (
+        <CodeBlock code={block.code ?? ''} language={block.language ?? 'javascript'} fontSize={block.fontSize} />
+      );
       break;
     case 'data':
       rendered = <DataBlock data={block.data ?? {}} />;
+      break;
+    case 'divider':
+      rendered = (
+        <DividerBlock
+          orientation={block.orientation}
+          length={block.length}
+          thickness={block.thickness}
+          color={block.color}
+          gradient={block.gradient}
+          glow={block.glow}
+          style={block.style}
+        />
+      );
       break;
     case 'media':
       rendered = <MediaBlock type={block.mediaType ?? 'image'} src={block.src} alt={block.alt} style={block.style} />;
@@ -124,11 +133,11 @@ function renderBlock(block, key, theme, customBlockRenderers = {}) {
       break;
     case 'stack':
       rendered = (
-          <Box style={{ display: 'grid', gap: block.gap ?? '12px' }}>
-            {(block.blocks ?? []).map((nested, idx) =>
-              renderBlock(nested, `${key}-stack-${idx}`, theme, customBlockRenderers)
-            )}
-          </Box>
+        <Box style={{ display: 'grid', gap: block.gap ?? '12px' }}>
+          {(block.blocks ?? []).map((nested, idx) =>
+            renderBlock(nested, `${key}-stack-${idx}`, theme, customBlockRenderers)
+          )}
+        </Box>
       );
       break;
     default:
@@ -180,9 +189,7 @@ function renderRegion(regionName, regionConfig, theme, customBlockRenderers = {}
         alignContent: isFitMode ? 'stretch' : 'start',
       }}
     >
-      {region.blocks.map((block, idx) =>
-        renderBlock(block, `${regionName}-block-${idx}`, theme, customBlockRenderers)
-      )}
+      {region.blocks.map((block, idx) => renderBlock(block, `${regionName}-block-${idx}`, theme, customBlockRenderers))}
     </Box>
   );
 
@@ -218,7 +225,14 @@ function renderRegion(regionName, regionConfig, theme, customBlockRenderers = {}
   );
 }
 
-export function StructuredSlide({ title, template = 'oneBox', regions = {}, layout = {}, blockRenderers = {} }) {
+export function StructuredSlide({
+  title,
+  template = 'oneBox',
+  regions = {},
+  layout = {},
+  background,
+  blockRenderers = {},
+}) {
   const { tokens } = usePresentationTheme();
   const defaultOverflow = layout.overflow ?? (template === 'grid' ? 'fit' : 'scroll');
   const main = renderRegion('main', regions.main, tokens, blockRenderers, defaultOverflow);
@@ -232,32 +246,28 @@ export function StructuredSlide({ title, template = 'oneBox', regions = {}, layo
 
   let content = <OneBoxLayout>{main}</OneBoxLayout>;
   if (template === 'twoVertical') {
-    content = (
-      <TwoVerticalBoxesLayout top={top} bottom={bottom} ratio={layout.ratio ?? '1fr 1fr'} gap={layout.gap} />
-    );
+    content = <TwoVerticalBoxesLayout top={top} bottom={bottom} ratio={layout.ratio ?? '1fr 1fr'} gap={layout.gap} />;
   }
 
   if (template === 'twoHorizontal') {
-    content = (
-      <TwoHorizontalBoxesLayout left={left} right={right} ratio={layout.ratio ?? '1fr 1fr'} gap={layout.gap} />
-    );
+    content = <TwoHorizontalBoxesLayout left={left} right={right} ratio={layout.ratio ?? '1fr 1fr'} gap={layout.gap} />;
   }
 
   if (template === 'grid') {
     content = (
-        <GridLayout
-        columns={layout.columns}
-        rows={layout.rows}
-        areas={layout.areas}
-        gap={layout.gap}
-      >
+      <GridLayout columns={layout.columns} rows={layout.rows} areas={layout.areas} gap={layout.gap}>
         {gridRegions}
       </GridLayout>
     );
   }
 
   return (
-    <SlideFrame title={title} titleAlign={layout.titleAlign ?? 'center'}>
+    <SlideFrame
+      title={title}
+      titleAlign={layout.titleAlign ?? 'center'}
+      showAccentBar={layout.showAccentBar ?? true}
+      background={background}
+    >
       {content}
     </SlideFrame>
   );

@@ -1,13 +1,18 @@
 import { Slide, Heading, Box } from 'spectacle';
 import { usePresentationTheme } from '../themes/PresentationThemeContext';
+import { getSlideBackgroundColor, SlideBackground } from './SlideBackground';
 
-export function SlideFrame({ title, titleAlign = 'left', children }) {
+export function SlideFrame({ title, titleAlign = 'left', showAccentBar = true, background, children }) {
   const { tokens, accentBar } = usePresentationTheme();
+  const backgroundColor = getSlideBackgroundColor(background, tokens.colors.background);
 
   return (
-    <Slide backgroundColor={tokens.colors.background}>
+    <Slide backgroundColor={backgroundColor}>
+      <SlideBackground background={background} fallbackColor={tokens.colors.background} />
       <Box
         style={{
+          position: 'relative',
+          zIndex: 1,
           padding: '16px 28px 8px 28px',
           textAlign: 'left',
           fontFamily: tokens.fonts.text,
@@ -38,19 +43,17 @@ export function SlideFrame({ title, titleAlign = 'left', children }) {
             >
               {title}
             </Heading>
-            <Box
-              style={{
-                ...accentBar,
-                margin: titleAlign === 'center' ? '8px auto 10px auto' : accentBar.margin,
-              }}
-            />
+            {showAccentBar ? (
+              <Box
+                style={{
+                  ...accentBar,
+                  margin: titleAlign === 'center' ? '8px auto 10px auto' : accentBar.margin,
+                }}
+              />
+            ) : null}
           </>
         )}
-        <Box
-          color={tokens.colors.text}
-          fontSize="text"
-          style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}
-        >
+        <Box color={tokens.colors.text} fontSize="text" style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
           {children}
         </Box>
       </Box>

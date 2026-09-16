@@ -1,5 +1,5 @@
 // Parse markdown-style formatting in text
-function parseMarkdown(text, tokens) {
+function parseMarkdown(text) {
   if (typeof text !== 'string') {
     return [{ type: 'text', content: text }];
   }
@@ -15,8 +15,10 @@ function parseMarkdown(text, tokens) {
     }
 
     // Italic: *text* or _text_
-    if ((segment.startsWith('*') && segment.endsWith('*') && segment.length > 2) ||
-        (segment.startsWith('_') && segment.endsWith('_') && segment.length > 2)) {
+    if (
+      (segment.startsWith('*') && segment.endsWith('*') && segment.length > 2) ||
+      (segment.startsWith('_') && segment.endsWith('_') && segment.length > 2)
+    ) {
       return { type: 'italic', content: segment.slice(1, -1) };
     }
 
@@ -110,6 +112,6 @@ export function InlineRichText({ text, tokens }) {
     return text;
   }
 
-  const segments = parseMarkdown(text, tokens);
+  const segments = parseMarkdown(text);
   return <>{segments.map((segment, idx) => renderSegment(segment, idx, tokens))}</>;
 }
