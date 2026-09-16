@@ -19,10 +19,14 @@ export const fx = {
 export const b = {
   heading: (text, options = {}) => compact({ type: 'heading', text, ...options }),
   text: (text, options = {}) => compact({ type: 'text', text, ...options }),
-  bullets: (items, options = {}) => compact({ type: 'bullets', items, fontSize: options.fontSize, gap: options.gap, ...options }),
-  progressiveBullets: (items, options = {}) => compact({ type: 'progressiveBullets', items, fontSize: options.fontSize, gap: options.gap, ...options }),
-  code: (code, language = 'javascript', options = {}) => compact({ type: 'code', code, language, fontSize: options.fontSize, ...options }),
+  bullets: (items, options = {}) =>
+    compact({ type: 'bullets', items, fontSize: options.fontSize, gap: options.gap, ...options }),
+  progressiveBullets: (items, options = {}) =>
+    compact({ type: 'progressiveBullets', items, fontSize: options.fontSize, gap: options.gap, ...options }),
+  code: (code, language = 'javascript', options = {}) =>
+    compact({ type: 'code', code, language, fontSize: options.fontSize, ...options }),
   data: (data, options = {}) => compact({ type: 'data', data, ...options }),
+  divider: (options = {}) => compact({ type: 'divider', ...options }),
   chart: (chartType, config = {}) => createChartBlock(chartType, config),
   lineChart: (config = {}) => createChartBlock('line', config),
   barChart: (config = {}) => createChartBlock('bar', config),
@@ -46,13 +50,33 @@ export function slide({
   template = 'oneBox',
   regions = {},
   layout = {},
+  background,
   id,
+  hide,
   notes,
   render,
   blockRenderers,
 } = {}) {
-  return compact({ title, template, regions, layout, id, notes, render, blockRenderers });
+  return compact({ title, template, regions, layout, background, id, hide, notes, render, blockRenderers });
 }
+
+export function titleSlide({ title, subtitle, eyebrow, logo, background, id, hide, variant, style, notes } = {}) {
+  return compact({
+    kind: 'title',
+    title,
+    subtitle,
+    eyebrow,
+    logo,
+    background,
+    id,
+    hide,
+    variant,
+    style,
+    notes,
+  });
+}
+
+export const section = titleSlide;
 
 export function definePresentation({
   id,
@@ -68,6 +92,7 @@ export function definePresentation({
   bulletIcon,
   slideNumbers,
   copyright,
+  previews,
 } = {}) {
   return compact({
     id,
@@ -83,6 +108,7 @@ export function definePresentation({
     bulletIcon,
     slideNumbers,
     copyright,
+    previews,
   });
 }
 
@@ -101,6 +127,7 @@ export function presentation(initial = {}) {
     bulletIcon: initial.bulletIcon,
     slideNumbers: initial.slideNumbers,
     copyright: initial.copyright,
+    previews: initial.previews,
   };
 
   const api = {
@@ -116,17 +143,17 @@ export function presentation(initial = {}) {
       state.favicon = value;
       return api;
     },
-    title(title, subtitle) {
+    title(title, subtitle, options = {}) {
       state.title = title;
-      state.titleSlide = { title, subtitle };
+      state.titleSlide = titleSlide({ title, subtitle, ...options });
       return api;
     },
     browserTitle(value) {
       state.browserTitle = value;
       return api;
     },
-    outro(title, subtitle) {
-      state.outroSlide = { title, subtitle };
+    outro(title, subtitle, options = {}) {
+      state.outroSlide = titleSlide({ title, subtitle, ...options });
       return api;
     },
     progressBar(value) {
@@ -145,8 +172,16 @@ export function presentation(initial = {}) {
       state.copyright = value;
       return api;
     },
+    previews(value) {
+      state.previews = value;
+      return api;
+    },
     add(slideDefinition) {
       state.slides.push(slideDefinition);
+      return api;
+    },
+    section(title, subtitle, options = {}) {
+      state.slides.push(titleSlide({ title, subtitle, ...options }));
       return api;
     },
     addSlides(slideDefinitions = []) {

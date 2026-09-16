@@ -1,9 +1,10 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { slideforgePdfExportPlugin } from './src/export/pdfExportPlugin.js'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), slideforgePdfExportPlugin()],
   resolve: {
     alias: [
       {

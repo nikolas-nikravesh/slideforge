@@ -7,11 +7,13 @@ React + Spectacle framework for code-first slide decks with a library-style pres
 Slideforge is a presentation authoring framework for teams that want repeatable, themeable, code-defined decks.
 
 It is built for:
+
 - Founders, operators, and finance teams producing recurring narrative decks
 - Product and engineering teams that want presentation quality to be versioned and reviewable
 - Developers who want declarative slide composition instead of hand-tuned one-off JSX per deck
 
 Core idea:
+
 - Treat presentations like software artifacts: structured definitions, reusable components, shared themes, and consistent rendering behavior.
 
 ## Why This Is More Than Raw Spectacle
@@ -32,6 +34,7 @@ In practice, Spectacle is the engine; Slideforge is the framework layer that sta
 - Declarative slide specs (`slide({...})`) with composable regions
 - Structured layouts (`oneBox`, `twoVertical`, `twoHorizontal`, `grid`)
 - First-class content blocks (text, bullets, charts, code, data, media)
+- Per-slide and title-slide background images
 - Theme registry with tokenized styling and reusable presets
 - Escape hatches for custom React where needed, without abandoning framework conventions
 
@@ -58,12 +61,15 @@ Import from the package-style API surface:
 ```jsx
 import { Presentation, themes } from 'slideforge';
 
-const { Deck, create, slide, blocks: b, effects: fx } = Presentation;
+const { Deck, create, slide, section, blocks: b, effects: fx } = Presentation;
 ```
 
 Key concepts:
-- `Presentation.create()` fluent builder (`.theme()`, `.title()`, `.addSlides()`, `.build()`)
+
+- `Presentation.create()` fluent builder (`.theme()`, `.title()`, `.section()`, `.addSlides()`, `.build()`)
 - `Presentation.slide(...)` declarative slide definitions
+- `Presentation.section(...)` / `Presentation.titleSlide(...)` mid-deck title slides
+- Slide backgrounds via `background: '/image.jpg'` or `background: { image, opacity, size, position, overlay }`
 - `Presentation.blocks` (`b`) and `Presentation.effects` (`fx`) helpers
   - Charts: `b.lineChart`, `b.barChart` (`stacked` supported), `b.topNBarChart`, `b.pieChart`
   - Chart config supports `xAxis` / `yAxis` ticks + formatters and explicit data colors (`seriesColors`, `sliceColors`, `itemColors`)
@@ -93,6 +99,36 @@ Key concepts:
 - `F`: full screen
 - `Option/Alt + P`: presenter mode
 
+## Export And Previews
+
+The Vite dev server includes Slideforge export endpoints. Both endpoints render through the same slide pipeline:
+
+- hidden slides are included
+- progressive slides render at their final step
+- images, media, and fonts are awaited before capture
+
+```bash
+# Refresh static slide previews used by browser review mode.
+curl -X POST http://127.0.0.1:5173/__slideforge/export/previews \
+  -H 'content-type: application/json' \
+  --data '{"quality":82}'
+
+# Write a PDF export.
+curl -X POST http://127.0.0.1:5173/__slideforge/export/pdf \
+  -H 'content-type: application/json' \
+  --data '{"output":"exports/presentation.pdf"}'
+```
+
+Decks can opt into static browser-review previews with:
+
+```jsx
+Presentation.create()
+  .id('my-deck')
+  .previews({ basePath: '/previews/my-deck', extension: 'jpg' });
+```
+
+When `outputDir` is omitted, the preview endpoint writes to the deck preview path under `public/`.
+
 ## Customization
 
 Slideforge supports presentation-level and theme-level customization.
@@ -107,7 +143,9 @@ const deck = Presentation.create()
   .bulletIcon(bulletPresets.checkmark)
   .slideNumbers({ position: 'bottom-right', showTotal: true })
   .copyright({ text: '© 2026 My Company' })
-  .addSlides([/* ... */])
+  .addSlides([
+    /* ... */
+  ])
   .build();
 ```
 
@@ -178,6 +216,54 @@ Apply font presets through theme tokens:
 ```
 
 `.copyright('© 2026 My Company')` also works with defaults.
+
+### Background Images
+
+Put static images in `public/` and reference them with root-relative paths:
+
+```jsx
+slide({
+  title: 'Market Overview',
+  background: {
+    image: '/backgrounds/market-overview.jpg',
+    opacity: 0.38,
+    size: 'cover',
+    position: 'center',
+    overlay: 'rgba(0, 0, 0, 0.42)',
+  },
+  regions: {
+    main: [b.heading('Revenue momentum'), b.bullets(['Expansion is accelerating'])],
+  },
+});
+```
+
+For simple cases, pass a string:
+
+```jsx
+slide({
+  title: 'Product Vision',
+  background: '/backgrounds/product-vision.jpg',
+  regions: {
+    main: [b.text('A visual-first strategy slide')],
+  },
+});
+```
+
+Title and outro slides support backgrounds through the third argument:
+
+```jsx
+Presentation.create()
+  .title('Annual Plan', 'FY2027', {
+    background: {
+      image: '/backgrounds/title.jpg',
+      opacity: 0.5,
+      overlay: 'rgba(0, 0, 0, 0.35)',
+    },
+  })
+  .outro('Thank You', 'Questions', {
+    background: '/backgrounds/outro.jpg',
+  });
+```
 
 ### Markdown Support
 

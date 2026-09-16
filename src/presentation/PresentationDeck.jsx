@@ -57,9 +57,7 @@ function SegmentedProgressBar({ slideNumber, numberOfSlides, colors }) {
             style={{
               flex: 1,
               height: '100%',
-              backgroundColor: isActive
-                ? colors.primary
-                : 'rgba(255, 255, 255, 0.12)',
+              backgroundColor: isActive ? colors.primary : 'rgba(255, 255, 255, 0.12)',
               borderRadius: '2px',
               transition: 'background-color 0.3s ease',
             }}
@@ -161,7 +159,7 @@ function SlideFooter({ slideNumber, numberOfSlides, colors, slideNumbersConfig, 
 }
 
 function createProgressTemplate(colors, progressBarConfig, slideNumbersConfig, copyrightConfig) {
-  return ({ slideNumber, numberOfSlides }) => {
+  return function ProgressTemplate({ slideNumber, numberOfSlides }) {
     return (
       <>
         <ViewportProgressBar
@@ -190,11 +188,7 @@ function ViewportControls({ colors }) {
     const presenterUrl = new URL(window.location.href);
     presenterUrl.searchParams.set('presenterMode', 'true');
     // Open presenter mode in a compact popup and keep this tab as audience view.
-    window.open(
-      presenterUrl.toString(),
-      'slideforge-presenter',
-      'popup=yes,width=560,height=900,left=24,top=24'
-    );
+    window.open(presenterUrl.toString(), 'slideforge-presenter', 'popup=yes,width=560,height=900,left=24,top=24');
   }, []);
 
   const toggleFullscreen = useCallback(async () => {
@@ -259,7 +253,7 @@ function ViewportControls({ colors }) {
   );
 }
 
-export function PresentationDeck({ children, theme = 'money' }) {
+export function PresentationDeck({ children, theme = 'money', showControls = true, disableInteractivity = false }) {
   const resolvedTheme = resolvePresentationTheme(theme);
   const template = createProgressTemplate(
     resolvedTheme.tokens.colors,
@@ -270,8 +264,8 @@ export function PresentationDeck({ children, theme = 'money' }) {
 
   return (
     <PresentationThemeProvider theme={resolvedTheme}>
-      <ViewportControls colors={resolvedTheme.tokens.colors} />
-      <Deck theme={resolvedTheme.spectacleTheme} template={template}>
+      {showControls ? <ViewportControls colors={resolvedTheme.tokens.colors} /> : null}
+      <Deck theme={resolvedTheme.spectacleTheme} template={template} disableInteractivity={disableInteractivity}>
         {children}
       </Deck>
     </PresentationThemeProvider>
